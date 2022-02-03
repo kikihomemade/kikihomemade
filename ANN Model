@@ -1,0 +1,82 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Feb  3 19:54:28 2022
+
+@author: muqiliu
+"""
+
+import numpy as np
+import pandas as pd
+from tensorflow.keras import layers
+#import tensorflow as tf
+from tensorflow import keras
+
+import matplotlib.pyplot as plt
+
+
+#Call data(csvv-file)
+dataset = pd.read_csv("/Users/muqiliu/Desktop/Datensatz.csv", header = None, decimal = ",", sep=";")#, verbose=False
+
+X_train = dataset.iloc[:,1:6]
+Y_train = dataset.iloc[:,7]
+
+input_train = np.asarray(X_train).astype(float)
+output_train =np.asarray(Y_train).astype(float)
+
+############################## Initiate model 1 ###############################
+# Model 1 has no hidden layers
+model1 = keras.Sequential()
+model1.add(layers.Dense(16, activation = "sigmoid"))
+#model1.add(layers.Dense(16, activation = "tanh"))
+#model1.add(layers.Dense(8, activation = "sigmoid"))
+
+#output layer with 1 output
+model1.add(layers.Dense(1, activation = "linear"))
+
+# Compile the model
+model1.compile(loss="mean_squared_error", optimizer='adam') #, metrics= ['accuracy']
+
+
+# Fit model
+history1 = model1.fit(input_train, output_train, validation_data=(X_train,Y_train), epochs=100, batch_size = 4)#
+
+#save predition and add it to data frame
+ypred = model1.predict(input_train)
+pred = np.reshape(ypred, -1)
+dataset['Praediktion'] = pred
+
+############################## Initiate model 2 ###############################
+# Model 2 has 1 hidden layer 
+
+model2 = keras.Sequential()
+#input layer
+model2.add(layers.Dense(16, activation = "sigmoid"))
+#model2.add(layers.Dense(16, activation = "tanh"))
+#model2.add(layers.Dense(8, activation = "sigmoid"))
+
+#add 1 hidden layer
+model2.add(layers.Dense(16, activation = "sigmoid"))
+
+#output layer with 1 output
+model2.add(layers.Dense(1, activation = "linear"))
+
+
+# Compile the model
+model2.compile(loss='mean_squared_error', optimizer='adam') 
+
+
+# Fit model
+history2 = model2.fit(X_train, Y_train, validation_data=(X_train,Y_train), epochs=100, batch_size = 4)
+
+ypred = model2.predict(input_train)
+pred = np.reshape(ypred, -1)
+dataset['Praediktion'] = pred
+dataset.to_csv("/Users/muqiliu/Desktop/Datensatz.csv", header = None, decimal = ",", sep = ";")#, encoding='unicode_escape'
+
+# Plot the models
+plt.plot(history1.history['val_loss'],'r', history2.history['val_loss'], 'b' )
+plt.xlabel('Epochs')
+plt.ylabel('Validation score')
+plt.show()
+

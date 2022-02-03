@@ -11,6 +11,7 @@ import pandas as pd
 from tensorflow.keras import layers
 #import tensorflow as tf
 from tensorflow import keras
+from keras import regularizers
 
 import matplotlib.pyplot as plt
 
@@ -24,10 +25,18 @@ Y_train = dataset.iloc[:,7]
 input_train = np.asarray(X_train).astype(float)
 output_train =np.asarray(Y_train).astype(float)
 
+# data_and_pre_process:remove duplicates
+dataset = dataset.drop_duplicates()
+#normalization（？）
+
+#regularization
+regularizers.l1(0.001)
+regularizers.l1_l2(l1=0.001,l2=0.001)
+
 ############################## Initiate model 1 ###############################
 # Model 1 has no hidden layers
 model1 = keras.Sequential()
-model1.add(layers.Dense(16, activation = "sigmoid"))
+model1.add(layers.Dense(16, activation = "sigmoid", kernel_regularizer=regularizers.l2(0.001)))
 #model1.add(layers.Dense(16, activation = "tanh"))
 #model1.add(layers.Dense(8, activation = "sigmoid"))
 
@@ -51,7 +60,7 @@ dataset['Praediktion'] = pred
 
 model2 = keras.Sequential()
 #input layer
-model2.add(layers.Dense(16, activation = "sigmoid"))
+model2.add(layers.Dense(16, activation = "sigmoid", kernel_regularizer=regularizers.l2(0.001)))
 #model2.add(layers.Dense(16, activation = "tanh"))
 #model2.add(layers.Dense(8, activation = "sigmoid"))
 
